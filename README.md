@@ -1,12 +1,12 @@
 charm-bootstrap-wsgi
 ====================
 
-A quick way to get started creating a [juju][1] charm for a wsgi service.
-As is, this charm deploys a demo service with nagios checks and simple
+This repo is a template charm for any [juju][1] deployed wsgi service.
+As is, this charm deploys an example wsgi service with nagios checks and simple
 rolling upgrades.
 
 You can re-use this charm to deploy any wsgi service by updating the
-simple playbook.yaml file. All of the wsgi functionality is provided
+playbook.yaml file. All of the wsgi functionality is provided
 by a reusable wsgi-app ansible role (see roles/wsgi-app) together
 with the gunicorn charm.
 
@@ -47,8 +47,7 @@ $ make nagios
 
 ## Your custom deployment code
 
-To deploy your custom application, you should only need to modify
-the playbook.yml. Open it up and take a look at the demo playbook.
+To deploy your own custom wsgi application, open up the playbook.yml
 In addition to the wsgi-app reusable role and the optional nagios reusable role
 (nrpe-external-master), it only has two tasks:
 
@@ -57,10 +56,10 @@ In addition to the wsgi-app reusable role and the optional nagios reusable role
 
 If you find yourself needing to do more than this, let me know :-)
 
-For simplicity, this example app is deployed from the charm itself with the
-archived code in the charm's files directory. But the wsgi-app role also
-allows you to define a code_assets_uri, which if set, will be used instead
-of the charm's files directory.
+For simplicity, the default example app is deployed from the charm itself with
+the archived code in the charm's files directory. But the wsgi-app role also
+allows you to define a code_assets_uri, which if set, will be used instead of
+the charm's files directory.
 
 The nagios check used for your app can be updated by adjusting the
 check_params passed to the role in playbook.yml (or you can additionally
@@ -69,8 +68,17 @@ add further nagios checks depending on your needs).
 
 ## A rolling upgrade example
 
+Assuming you've already deployed the example service, we first update
+the configuration so that the units continue to run the 'r1' build
+(current_symlink), while simultaneously ensuring that the 'r2' build
+is installed and ready to run:
 ```
 $ juju set wsgi-example current_symlink=r1 build_label=r2
+```
+
+Next, manually set just one unit to use the r2 build:
+
+```
 $ juju run --unit wsgi-example/0 "CURRENT_SYMLINK=r2 actions/set-current-symlink"
 
 PLAY [localhost] **************************************************************
