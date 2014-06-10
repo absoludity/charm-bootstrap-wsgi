@@ -39,6 +39,23 @@ juju run --service wsgi-example "curl -s http://localhost:8080"
   UnitId: charm-bootstrap-wsgi/1
 ```
 
+## Your custom deployment code
+
+To deploy your custom application, you should only need to modify
+the playbook.yml. Open it up and take a look at the demo playbook.
+In addition to the wsgi-app reusable role, it only has two tasks:
+
+ * installing any package dependencies
+ * Re-rendering the app's config file (and triggering a wsgi restart)
+
+If you find yourself needing to do more than this, let me know :-)
+
+For simplicity, this example app is deployed from the charm itself with the
+archived code in the charm's files directory. But the wsgi-app role also
+allows you to define a code_assets_uri, which if set, will be used instead
+of the charm's files directory.
+
+
 ## A rolling upgrade example
 
 ```

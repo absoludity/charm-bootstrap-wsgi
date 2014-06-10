@@ -13,6 +13,7 @@
 
   tasks:
 
+    # Pretend there are some package dependencies for the example wsgi app.
     - name: Install any required packages for your app.
       apt: pkg={{ item }} state=latest update_cache=yes
       with_items:
@@ -25,6 +26,7 @@
     - name: Write any custom configuration files
       debug: msg="You'd write any custom config files here, then notify the 'Restart wsgi' handler."
       tags:
-        - confg-changed
+        - config-changed
+        # Also any backend relation-changed events, such as databases.
       notify:
         - Restart wsgi
