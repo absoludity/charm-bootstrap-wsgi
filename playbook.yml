@@ -11,6 +11,11 @@
       code_archive: "{{ build_label }}/example-wsgi-app.tar.bzip2"
       when: build_label != ''
 
+    - role: nrpe-external-master
+      check_name: check_http
+      check_params: "-I 127.0.0.1 -p 8080 -e ' 200 OK' -s 'It works!' -u '/'"
+      service_description: "Verify wsgi-example is responding."
+
   tasks:
 
     # Pretend there are some package dependencies for the example wsgi app.
