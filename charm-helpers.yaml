@@ -1,0 +1,7 @@
+branch: lp:~michael.nelson/charm-helpers/ansible-detect-hooks
+destination: hooks/charmhelpers
+include:
+    - core
+    - fetch
+    - contrib.ansible|inc=*
+    - contrib.templating.contexts

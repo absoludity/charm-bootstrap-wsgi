@@ -1,0 +1,17 @@
+name: charm-bootstrap-wsgi
+summary: Bootstrap your wsgi service charm.
+maintainer: Developer Account <Developer.Account@localhost>
+description: |
+  <Multi-line description here>
+categories:
+  - misc
+subordinate: false
+provides:
+    website:
+        interface: http
+    wsgi-file:
+       interface: wsgi
+       scope: container
+    nrpe-external-master:
+       interface: nrpe-external-master
+       scope: container

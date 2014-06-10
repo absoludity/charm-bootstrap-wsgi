@@ -1,0 +1,9 @@
+options:
+    build_label:
+        default: ""
+        type: string
+        description: >
+            The build label given to the code archive and corresponding to
+            the directory within which the archived code is stored.
+            For example, a value of 'r2' tells the charm to use
+            the archive at 'r2/example-wsgi-app.tar.bzip2'.

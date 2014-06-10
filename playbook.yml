@@ -1,0 +1,27 @@
+---
+- hosts: localhost
+  roles:
+    - role: wsgi-app
+      listen_port: 8080
+      app_label: wsgi-app.example.com
+      wsgi_application: example_wsgi:application
+      code_archive: "{{ build_label }}/example-wsgi-app.tar.bzip2"
+      when: build_label != ''
+
+  tasks:
+
+    - name: Install any required packages for your app.
+      apt: pkg={{ item }} state=latest update_cache=yes
+      with_items:
+        - python-django
+        - python-django-celery
+      tags:
+        - install
+        - upgrade-charm
+
+    - name: Write any custom configuration files
+      debug: msg="You'd write any custom config files here, then notify the 'Restart wsgi' handler."
+      tags:
+        - confg-changed
+      notify:
+        - Restart wsgi
