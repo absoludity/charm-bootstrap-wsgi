@@ -29,9 +29,12 @@ sync-ansible-roles: /tmp/charm-ansible-roles /tmp/canonical-ansible-roles
 	@cp -a /tmp/charm-ansible-roles/wsgi-app ./roles
 
 deploy:
-	@echo Deploying charm-bootstrap-wsgi with gunicorn.
-	@juju deploy --repository=../.. local:precise/charm-bootstrap-wsgi
+	@echo Deploying charm-bootstrap-wsgi as wsgi-example with gunicorn.
+	@juju deploy --num-units 2 --repository=../.. local:precise/charm-bootstrap-wsgi wsgi-example
+	@juju set wsgi-example build_label=r1
 	@juju deploy gunicorn
-	@juju add-relation charm-bootstrap-wsgi gunicorn
-	@juju set charm-bootstrap-wsgi build_label=r1
+	@juju add-relation wsgi-example gunicorn
 	@echo See the README for explorations after deploying.
+
+curl:
+	juju run --service wsgi-example "curl -s http://localhost:8080"

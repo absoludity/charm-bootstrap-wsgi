@@ -1,60 +1,88 @@
-charm-bootstrap-ansible
-=======================
+charm-bootstrap-wsgi
+====================
 
-A quick way to get started creating a [juju][1] charm using
-[ansible][2].
+A quick way to get started creating a [juju][1] charm for a wsgi service
+using [ansible][2]. As is, this charm deploys a demo service which can
+do a simple rolling upgrade.
+
+You can re-use this charm to deploy any wsgi service by updating the
+simple playbook.yaml file. All of the wsgi functionality is provided
+by a reusable wsgi-app ansible role (see roles/wsgi-app) together
+with the gunicorn charm.
 
 Disclaimer: this template does not try to explain what's possible with
 either ansible or juju - but if you know a bit about both, it will
 show you how you can easily use them together.
 
-Make sure you have both git and bzr installed and then:
+
+## Deploying the charm
+
+Make sure you've got a bootstrapped juju environment ready, and then:
 
 ```
-$ mkdir -p charms/precise && cd charms/precise
-$ git clone https://github.com/absoludity/charm-bootstrap-ansible.git
-$ cd charm-bootstrap-ansible
+$ mkdir -p ~/charms/precise && cd ~/charms/precise
+$ git clone https://github.com/absoludity/charm-bootstrap-wsgi
+$ cd charm-bootstrap-wsgi
+$ make deploy
 ```
 
-Take a look around at the hooks/hooks.py or the playbooks/site.yaml,
-or deploy it to your already bootstrapped precise environment with:
+You should now be able to curl your service to see it working:
 
 ```
-$ juju deploy --repository=../.. local:precise/charm-bootstrap-ansible
-$ juju set charm-bootstrap-ansible build_label=r1
+$ make curl
+juju run --service wsgi-example "curl -s http://localhost:8080"
+- MachineId: "1"
+  Stdout: 'It works! Revision 1'
+  UnitId: charm-bootstrap-wsgi/0
+- MachineId: "2"
+  Stdout: 'It works! Revision 1'
+  UnitId: charm-bootstrap-wsgi/1
 ```
 
-If you'd like to explore what's happening when the hooks run,
-once juju status tells you that the services has 'started', you can
-open another terminal up and run
+## A rolling upgrade example
 
 ```
-$ juju debug-hooks charm-bootstrap-ansible/0
+$ juju set wsgi-example current_symlink=r1 build_label=r2
+$ juju run --unit wsgi-example/0 "CURRENT_SYMLINK=r2 actions/set-current-symlink"
+
+PLAY [localhost] **************************************************************
+
+GATHERING FACTS ***************************************************************
+ok: [localhost]
+
+TASK: [wsgi-app | Manually set current symlink.] ******************************
+changed: [localhost]
+
+NOTIFIED: [wsgi-app | Restart wsgi] *******************************************
+changed: ...
+
+PLAY RECAP ********************************************************************
+localhost                  : ok=3    changed=2    unreachable=0    failed=0
 ```
 
-Back in your original terminal, let's change one of the config
-options (defined in the config.yaml):
+Verify that the new revision is working correctly on the one instance:
 
 ```
-$ juju set charm-bootstrap-ansible string-option="Hi there"
+$ make curl
+juju run --service wsgi-example "curl -s http://localhost:8080"
+- MachineId: "1"
+  Stdout: 'It works! Revision 2'
+  UnitId: wsgi-example/0
+- MachineId: "2"
+  Stdout: 'It works! Revision 1'
+  UnitId: wsgi-example/1
 ```
 
-Back in your debug-hooks terminal, you'll see the prompt
-has changed to let you know it's ready to run the config-changed
-hook. Run the hook to see what it does with:
+Update any others, or when you're confident, update the full set with:
 
 ```
-$ hooks/config-changed
+$ juju set wsgi-example current_symlink=r2
 ```
 
-You'll see the output of ansible running all the tasks tagged with
-'config-changed', including a debug message with the value of
-the config option that you changed. Just 'exit' to let juju know
-the hook execution has finished.
+and then verify that all units are service the latest with `make curl` again.
 
-Have fun exploring the possibilities of ansible and juju!
 
-### Note about Dependencies
+### Note about test Dependencies
 The makefile to run tests requires the following dependencies
 
 - python-nose

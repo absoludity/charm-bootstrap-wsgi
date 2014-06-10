@@ -1,9 +1,12 @@
 ---
 - hosts: localhost
+
+  vars:
+    - app_label: wsgi-app.example.com
+
   roles:
     - role: wsgi-app
       listen_port: 8080
-      app_label: wsgi-app.example.com
       wsgi_application: example_wsgi:application
       code_archive: "{{ build_label }}/example-wsgi-app.tar.bzip2"
       when: build_label != ''

@@ -26,37 +26,23 @@ class InstallHookTestCase(unittest.TestCase):
         self.mock_apply_playbook = patcher.start()
         self.addCleanup(patcher.stop)
 
-    def test_installs_ansible_support(self):
+    def test_install_installs_ansible_support(self):
         hooks.execute(['install'])
 
         ansible = self.mock_charmhelpers.contrib.ansible
         ansible.install_ansible_support.assert_called_once_with(
             from_ppa=True)
 
-    def test_applies_install_playbook(self):
-        hooks.execute(['install'])
-
-        self.assertEqual([
-            mock.call('playbooks/site.yaml', tags=['install']),
-        ], self.mock_apply_playbook.call_args_list)
-
-
-class DefaultHooksTestCase(unittest.TestCase):
-
-    def setUp(self):
-        super(DefaultHooksTestCase, self).setUp()
-        patcher = mock.patch('charmhelpers.contrib.ansible.apply_playbook')
-        self.mock_apply_playbook = patcher.start()
-        self.addCleanup(patcher.stop)
-
     def test_default_hooks(self):
         """Most of the hooks let ansible do all the work."""
-        for hook in ('start', 'stop', 'config-changed'):
+        for hook in ('install', 'upgrade-charm', 'config-changed',
+                     'website-relation-changed',
+                     'wsgi-file-relation-changed'):
             self.mock_apply_playbook.reset_mock()
 
             hooks.execute([hook])
 
             self.assertEqual([
-                mock.call('playbooks/site.yaml',
+                mock.call('playbook.yml',
                           tags=[hook]),
             ], self.mock_apply_playbook.call_args_list)

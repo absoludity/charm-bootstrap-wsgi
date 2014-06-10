@@ -4,6 +4,14 @@ options:
         type: string
         description: >
             The build label given to the code archive and corresponding to
-            the directory within which the archived code is stored.
+            the path from which the archived code should be installed.
             For example, a value of 'r2' tells the charm to use
             the archive at 'r2/example-wsgi-app.tar.bzip2'.
+    current_symlink:
+        default: "latest"
+        type: string
+        description: |
+            The symlink of the code to run. The default of 'latest' will use
+            the most recently added build on the instance.  Specifying a
+            differnt label (eg. "r235") will symlink to that directory assuming
+            it has been previously added to the instance.
