@@ -1,6 +1,6 @@
-name: charm-bootstrap-wsgi
-summary: Bootstrap your wsgi service charm.
-maintainer: Developer Account <Developer.Account@localhost>
+name: ubuntu-reviews
+summary: A review API service for Ubuntu click packages.
+maintainer: Michael Nelson <michael.nelson@canonical.com>
 description: |
   <Multi-line description here>
 categories:

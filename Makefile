@@ -1,5 +1,7 @@
 #!/usr/bin/make
 PYTHON := /usr/bin/env python
+REVIEWS_CODE = ../.sourcecode/rnr-server/
+REVIEWS_REVNO = 249
 
 build: sync-charm-helpers test
 
@@ -29,18 +31,32 @@ sync-ansible-roles: /tmp/charm-ansible-roles /tmp/canonical-ansible-roles
 	@cp -a /tmp/charm-ansible-roles/wsgi-app ./roles
 	@cp -a /tmp/charm-ansible-roles/nrpe-external-master ./roles
 
-deploy:
-	@echo Deploying charm-bootstrap-wsgi as wsgi-example with gunicorn.
-	@juju deploy --num-units 2 --repository=../.. local:precise/charm-bootstrap-wsgi wsgi-example
-	@juju set wsgi-example build_label=r1
+deploy: create-tarball
+	@echo Deploying ubuntu-reviews r$(REVIEWS_REVNO) with gunicorn.
+	@juju deploy --num-units 2 --repository=../.. local:precise/ubuntu-reviews
+	@juju set ubuntu-reviews build_label=r$(REVIEWS_REVNO)
 	@juju deploy gunicorn
 	@juju deploy nrpe-external-master
-	@juju add-relation wsgi-example gunicorn
-	@juju add-relation wsgi-example nrpe-external-master
+	@juju add-relation ubuntu-reviews gunicorn
+	@juju add-relation ubuntu-reviews nrpe-external-master
 	@echo See the README for explorations after deploying.
 
 curl:
-	juju run --service wsgi-example "curl -s http://localhost:8080"
+	juju run --service ubuntu-reviews "curl -s http://localhost:8080"
 
 nagios:
-	juju run --service wsgi-example "egrep -oh /usr.*lib.* /etc/nagios/nrpe.d/check_* | sudo -u nagios -s bash"
+	juju run --service ubuntu-reviews "egrep -oh /usr.*lib.* /etc/nagios/nrpe.d/check_* | sudo -u nagios -s bash"
+
+collect-code: $(REVIEWS_CODE)
+
+$(REVIEWS_CODE):
+	@echo Grabbing the reviews server code
+	@mkdir -p ../.sourcecode
+	@cd ../.sourcecode && bzr branch -r $(REVIEWS_REVNO) lp:rnr-server
+
+create-tarball: $(REVIEWS_CODE) files/r$(REVIEWS_REVNO)/rnr-server.tgz
+
+files/r$(REVIEWS_REVNO)/rnr-server.tgz:
+	@echo Creating tarball of code for deploy
+	@mkdir -p files/r$(REVIEWS_REVNO)
+	@tar czf $@ -C $(REVIEWS_CODE) .
