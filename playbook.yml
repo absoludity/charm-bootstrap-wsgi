@@ -7,7 +7,8 @@
   roles:
     - role: wsgi-app
       listen_port: 8080
-      wsgi_application: wsgi:app
+      python_path: "{{ application_dir }}/django-project:{{ current_code_dir }}/src"
+      wsgi_application: clickreviewsproject.wsgi:application
       code_archive: "{{ build_label }}/rnr-server.tgz"
       when: build_label != ''
 
@@ -18,20 +19,18 @@
 
   tasks:
 
-    # Pretend there are some package dependencies for the example wsgi app.
     - name: Install any required packages for your app.
-      apt: pkg={{ item }} state=latest update_cache=yes
+      apt: pkg={{ item }}
       with_items:
-        - python-django
-        - python-django-celery
+        - python-django=1.5.4-1ubuntu1~ctools0
       tags:
         - install
         - upgrade-charm
 
     - name: Write any custom configuration files
-      debug: msg="You'd write any custom config files here, then notify the 'Restart wsgi' handler."
+      copy: src=django-project dest={{ application_dir }} owner={{ wsgi_user }} group={{ wsgi_group }}
       tags:
-        - config-changed
-        # Also any backend relation-changed events, such as databases.
+        - install
+        - upgrade-charm
       notify:
         - Restart wsgi

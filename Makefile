@@ -60,3 +60,6 @@ files/r$(REVIEWS_REVNO)/rnr-server.tgz:
 	@echo Creating tarball of code for deploy
 	@mkdir -p files/r$(REVIEWS_REVNO)
 	@tar czf $@ -C $(REVIEWS_CODE) .
+
+upgrade-charm:
+	juju upgrade-charm --repository=../.. ubuntu-reviews
