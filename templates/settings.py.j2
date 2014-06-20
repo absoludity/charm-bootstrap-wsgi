@@ -1,0 +1,41 @@
+DEBUG = True
+TEMPLATE_DEBUG = DEBUG
+SECRET_KEY = '{{ django_secret_key }}'
+TIME_ZONE = 'UTC'
+ROOT_URLCONF = 'clickreviewsproject.urls'
+WSGI_APPLICATION = 'clickreviewsproject.wsgi.application'
+INSTALLED_APPS = (
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.sites',
+    'django_openid_auth',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'clickreviews',
+    'south',
+)
+AUTHENTICATION_BACKENDS = (
+    'django_openid_auth.auth.OpenIDBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
+LOGIN_URL = '/openid/login/'
+LOGIN_REDIRECT_URL = '/'
+OPENID_CREATE_USERS = True
+OPENID_REUSE_USERS = True
+OPENID_UPDATE_DETAILS_FROM_SREG = True
+OPENID_SSO_SERVER_URL = 'https://login.staging.ubuntu.com/'
+OPENID_LAUNCHPAD_TEAMS_MAPPING = {
+    'rnr-moderators': 'rnr-moderators',
+}
+# Reviews settings
+MODERATORS_GROUP = 'rnr-moderators'
+API_REVIEWS_PAGINATION = 10
+PRELOAD_API_SERVICE_ROOTS = False
+CACHE_REVIEW_STATS_SECONDS = 60*60*4
+TOKEN_CACHE_EXPIRY_HOURS = 4
+REVIEWSAPP_MEDIA_ROOT = 'src/reviewsapp/media'
+ENABLE_ARTIFICIAL_OOPS = True
+MODIFY_WINDOW_MINUTES = 120
+
+OAUTH_DATA_STORE = 'reviewsapp.models.oauthtoken.DataStore'

@@ -10,8 +10,13 @@ options:
     current_symlink:
         default: "latest"
         type: string
-        description: |
+        description: >
             The symlink of the code to run. The default of 'latest' will use
             the most recently added build on the instance.  Specifying a
             differnt label (eg. "r235") will symlink to that directory assuming
             it has been previously added to the instance.
+    django_secret_key:
+        default: "you-really-should-set-this"
+        type: string
+        description: >
+            The secret key that django should use for each instance.

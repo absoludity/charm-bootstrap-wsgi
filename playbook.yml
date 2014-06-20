@@ -29,7 +29,7 @@
         - install
         - upgrade-charm
 
-    - name: Write any custom configuration files
+    - name: Copy the project configuration
       copy: src=django-project dest={{ application_dir }} owner={{ wsgi_user }} group={{ wsgi_group }}
       tags:
         - install
@@ -37,6 +37,17 @@
       notify:
         - Restart wsgi
 
+    - name: Write the settings
+      template:
+        src: "templates/settings.py.j2"
+        dest: "{{ application_dir }}/django-project/clickreviewsproject/settings.py"
+        owner: "{{ wsgi_user }}"
+        group: "{{ wsgi_group }}"
+      tags:
+        - install
+        - upgrade-charm
+      notify:
+        - Restart wsgi
     # XXX Normally our deployment build would ensure these are all available in the tarball.
     - name: Install any non-distro dependencies (Don't depend on pip for a real deployment!)
       pip: name={{ item.key }} version={{ item.value }}
