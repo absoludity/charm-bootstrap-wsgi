@@ -23,6 +23,8 @@
       apt: pkg={{ item }}
       with_items:
         - python-django=1.5.4-1ubuntu1~ctools0
+        - python-tz
+        - python-pip
       tags:
         - install
         - upgrade-charm
@@ -34,3 +36,12 @@
         - upgrade-charm
       notify:
         - Restart wsgi
+
+    # XXX Normally our deployment build would ensure these are all available in the tarball.
+    - name: Install any non-distro dependencies (Don't depend on pip for a real deployment!)
+      pip: name={{ item.key }} version={{ item.value }}
+      with_dict:
+        south: 0.7.6
+      tags:
+        - install
+        - upgrade-charm

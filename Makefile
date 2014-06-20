@@ -53,6 +53,8 @@ $(REVIEWS_CODE):
 	@echo Grabbing the reviews server code
 	@mkdir -p ../.sourcecode
 	@cd ../.sourcecode && bzr branch -r $(REVIEWS_REVNO) lp:rnr-server
+	@echo "Pulling required branhc dependencies (this requires python-fabric)"
+	@cd ../.sourcecode/rnr-server && fab pull_required_branches
 
 create-tarball: $(REVIEWS_CODE) files/r$(REVIEWS_REVNO)/rnr-server.tgz
 
