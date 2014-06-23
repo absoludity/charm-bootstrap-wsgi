@@ -37,8 +37,17 @@ deploy: create-tarball
 	@juju set ubuntu-reviews build_label=r$(REVIEWS_REVNO)
 	@juju deploy gunicorn
 	@juju deploy nrpe-external-master
+	@juju deploy postgresql
 	@juju add-relation ubuntu-reviews gunicorn
 	@juju add-relation ubuntu-reviews nrpe-external-master
+	@juju add-relation ubuntu-reviews postgresql:db
+	@juju set postgresql extra-packages=postgresql-9.1-debversion
+	@echo "Once the services are related, run 'make setup-db'"
+
+setup-db:
+	@echo "Creating custom debversion postgres type and syncing the ubuntu-reviews database."
+	@juju run --service postgresql 'psql -U postgres ubuntu-reviews -c "CREATE EXTENSION debversion;"'
+	@juju run --unit=ubuntu-reviews/0 "hooks/syncdb"
 	@echo See the README for explorations after deploying.
 
 curl:

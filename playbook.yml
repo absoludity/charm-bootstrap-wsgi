@@ -3,13 +3,13 @@
 
   vars:
     - app_label: click-reviews.ubuntu.com
+    - code_archive: "{{ build_label }}/rnr-server.tgz"
 
   roles:
     - role: wsgi-app
       listen_port: 8080
       python_path: "{{ application_dir }}/django-project:{{ current_code_dir }}/src"
       wsgi_application: clickreviewsproject.wsgi:application
-      code_archive: "{{ build_label }}/rnr-server.tgz"
       when: build_label != ''
 
     - role: nrpe-external-master
@@ -25,6 +25,7 @@
         - python-django=1.5.4-1ubuntu1~ctools0
         - python-tz
         - python-pip
+        - python-psycopg2
       tags:
         - install
         - upgrade-charm
@@ -46,13 +47,24 @@
       tags:
         - install
         - upgrade-charm
+        - db-relation-changed
       notify:
         - Restart wsgi
+
     # XXX Normally our deployment build would ensure these are all available in the tarball.
     - name: Install any non-distro dependencies (Don't depend on pip for a real deployment!)
       pip: name={{ item.key }} version={{ item.value }}
       with_dict:
         south: 0.7.6
+        django-openid-auth: 0.2
       tags:
         - install
         - upgrade-charm
+
+    - name: sync the database
+      django_manage: >
+        command="syncdb --noinput"
+        app_path="{{ application_dir }}/django-project"
+        pythonpath="{{ code_dir }}/current/src"
+      tags:
+        - syncdb

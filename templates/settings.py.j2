@@ -1,6 +1,31 @@
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 SECRET_KEY = '{{ django_secret_key }}'
+
+{% if 'db' in relations %}
+DATABASES = {
+  {% for dbrelation in relations['db'] %}
+  {% if loop.first %}
+    {% set services=relations['db'][dbrelation] %}
+    {% for service in services %}
+      {% if service.startswith('postgres') %}
+      {% set dbdetails = services[service] %}
+        {% if 'database' in dbdetails %}
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': '{{ dbdetails["database"] }}',
+        'HOST': '{{ dbdetails["host"] }}',
+        'USER': '{{ dbdetails["user"] }}',
+        'PASSWORD': '{{ dbdetails["password"] }}',
+    }
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+  {% endfor %}
+}
+{% endif %}
+
 TIME_ZONE = 'UTC'
 ROOT_URLCONF = 'clickreviewsproject.urls'
 WSGI_APPLICATION = 'clickreviewsproject.wsgi.application'
@@ -12,8 +37,8 @@ INSTALLED_APPS = (
     'django_openid_auth',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'reviewsapp',
     'clickreviews',
-    'south',
 )
 AUTHENTICATION_BACKENDS = (
     'django_openid_auth.auth.OpenIDBackend',
