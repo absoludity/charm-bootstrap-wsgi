@@ -45,11 +45,21 @@
         owner: "{{ wsgi_user }}"
         group: "{{ wsgi_group }}"
       tags:
-        - install
-        - upgrade-charm
+        - config-changed
+      notify:
+        - Restart wsgi
+
+    - name: Write the database settings
+      template:
+        src: "templates/database_settings.py.j2"
+        dest: "{{ application_dir }}/django-project/clickreviewsproject/database_settings.py"
+        owner: "{{ wsgi_user }}"
+        group: "{{ wsgi_group }}"
+      tags:
         - db-relation-changed
       notify:
         - Restart wsgi
+      when: "'database' in current_relation"
 
     # XXX Normally our deployment build would ensure these are all available in the tarball.
     - name: Install any non-distro dependencies (Don't depend on pip for a real deployment!)

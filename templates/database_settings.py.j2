@@ -1,0 +1,9 @@
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': '{{ current_relation["database"] }}',
+        'HOST': '{{ current_relation["host"] }}',
+        'USER': '{{ current_relation["user"] }}',
+        'PASSWORD': '{{ current_relation["password"] }}',
+    }
+}

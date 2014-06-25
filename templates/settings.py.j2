@@ -2,29 +2,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 SECRET_KEY = '{{ django_secret_key }}'
 
-{% if 'db' in relations %}
-DATABASES = {
-  {% for dbrelation in relations['db'] %}
-  {% if loop.first %}
-    {% set services=relations['db'][dbrelation] %}
-    {% for service in services %}
-      {% if service.startswith('postgres') %}
-      {% set dbdetails = services[service] %}
-        {% if 'database' in dbdetails %}
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': '{{ dbdetails["database"] }}',
-        'HOST': '{{ dbdetails["host"] }}',
-        'USER': '{{ dbdetails["user"] }}',
-        'PASSWORD': '{{ dbdetails["password"] }}',
-    }
-        {% endif %}
-      {% endif %}
-    {% endfor %}
-  {% endif %}
-  {% endfor %}
-}
-{% endif %}
+from database_settings import DATABASES
 
 TIME_ZONE = 'UTC'
 ROOT_URLCONF = 'clickreviewsproject.urls'
